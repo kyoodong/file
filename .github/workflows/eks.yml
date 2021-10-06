@@ -18,6 +18,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Log
+      run: |
+        echo "${{ github.ref }}"
+
     - name: Set SERVICE_ENV internal
       if: github.ref == 'refs/heads/internal'
       run: echo "SERVICE_ENV=internal" >> $GITHUB_ENV
