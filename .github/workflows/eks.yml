@@ -1,0 +1,31 @@
+name: EKS-CICD
+
+on:
+  push:
+    branches:
+      - mainnet
+      - testnet
+      - internal
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      APPLICATION_ID: ${{ secrets.APPLICATION_ID }}
+      RELEASE_VERSION: ${{ github.sha }}
+      DOCKER_IMAGE: $APPLICATION_ID:$RELEASE_VERSION
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set SERVICE_ENV internal
+      if: github.ref == 'refs/heads/internal'
+      run: echo "SERVICE_ENV=internal" >> $GITHUB_ENV
+
+    - name: Set SERVICE_ENV mainnet
+      if: github.ref == 'refs/heads/mainnet'
+      run: echo "SERVICE_ENV=mainnet" >> $GITHUB_ENV
+
+    - name: Set SERVICE_ENV testnet
+      if: github.ref == 'refs/heads/testnet'
+      run: echo "SERVICE_ENV=testnet" >> $GITHUB_ENV
