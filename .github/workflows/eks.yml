@@ -6,6 +6,11 @@ on:
       - mainnet
       - testnet
       - internal
+  pull_request:
+    branches:
+      - mainnet
+      - testnet
+      - internal
 
 jobs:
   build:
@@ -20,6 +25,7 @@ jobs:
 
     - name: Log
       run: |
+        echo "${{ github.base_ref }}"
         echo "${{ github.ref }}"
 
     - name: Set SERVICE_ENV internal
