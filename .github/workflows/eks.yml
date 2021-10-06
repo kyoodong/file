@@ -6,11 +6,6 @@ on:
       - mainnet
       - testnet
       - internal
-  pull_request:
-    branches:
-      - mainnet
-      - testnet
-      - internal
 
 jobs:
   build:
