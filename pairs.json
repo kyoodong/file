@@ -5,6 +5,7 @@
     "terra1wqlehpdy5yu787lnk5k8c2zf0eyvc9rt8ek0x3": ["uusd", "terra1a8hskrwnccq0v7gq3n24nraaqt7yevzy005uf5"]
   },
   "localterra": {
-	  "terra1hn2fr4v0rmdgynhgjv59npmuywq5xsaefj578w": ["uusd", "rerra1cqmlgrf6q5a8zvpdnq4ru96xralywfc6acfaj"]
+	  "terra1hn2fr4v0rmdgynhgjv59npmuywq5xsaefj578w": ["uusd", "rerra1cqmlgrf6q5a8zvpdnq4ru96xralywfc6acfaj"],
+	  "test": ["uusd", "test"]
   }
 }
