@@ -1,5 +1,6 @@
 {
   "mainnet": {
+    "terra1e59utusv5rspqsu8t37h5w887d9rdykljedxw0": ["uusd", "terra1dy9kmlm4anr92e42mrkjwzyvfqwz66un00rwr5"]
   },
   "testnet": {
     "terra1wqlehpdy5yu787lnk5k8c2zf0eyvc9rt8ek0x3": ["uusd", "terra1a8hskrwnccq0v7gq3n24nraaqt7yevzy005uf5"]
