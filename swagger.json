@@ -1,0 +1,961 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "This is a qualification api for valkyrie.",
+    "version": "1.0.0",
+    "title": "Qualification API",
+    "termsOfService": "http://swagger.io/terms/",
+    "contact": {
+      "email": "dawn@breezelabs.io"
+    }
+  },
+  "host": "qualification-api.valkyrieprotocol.com",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "Signer",
+      "description": "Wallet that manage qualification rules."
+    },
+    {
+      "name": "Rule"
+    },
+    {
+      "name": "Qualification",
+      "description": "Get or set your qualification results."
+    }
+  ],
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/signer/challenge": {
+      "post": {
+        "tags": [
+          "Signer"
+        ],
+        "summary": "Get a secret key",
+        "description": "This secret key is encoded by base64. So it need to be decoded by base64 before decryption. Then decrypt decoded secret key by your private key that is matched public key which you requested.",
+        "operationId": "challengeSigner",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "publicKey": {
+                  "type": "string",
+                  "description": "RSA 2048 public key"
+                }
+              },
+              "required": [
+                "publicKey"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "secretKey": {
+                  "type": "string",
+                  "description": "This secret key is encoded by base64. So it need to be decoded by base64 before decryption. Then decrypt decoded secret key by your private key that is matched public key which you requested."
+                },
+                "expiredAt": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "Expired time(utc)."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/signer": {
+      "post": {
+        "tags": [
+          "Signer"
+        ],
+        "summary": "Register your signer terra wallet's private key",
+        "description": "We strongly recommend, it doesn't have any money. Just use this wallet to managing qualification rules.",
+        "operationId": "registerSigner",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "EncryptedPrivateKey that needs to be added to the store",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "encryptedPrivateKey": {
+                  "type": "string",
+                  "description": "It must be encrypted by secret key. Secret key can be issued by endpoint /key/secret."
+                }
+              },
+              "required": [
+                "encryptedPrivateKey"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/rule/json": {
+      "post": {
+        "tags": [
+          "Rule"
+        ],
+        "summary": "Set qualification rule with json format.",
+        "operationId": "registerRuleJson",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "campaign": {
+                  "type": "string",
+                  "example": "terra1h96s396ac9xd722cxjvv93wmdau50kk2krgu4v"
+                },
+                "rule": {
+                  "$ref": "#/definitions/Expression"
+                }
+              },
+              "required": [
+                "campaign",
+                "rule"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ruleId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "RequestTimestamp": [],
+            "RequestMessageHash": [],
+            "RequestSignature": [],
+            "WalletAuth": []
+          }
+        ]
+      }
+    },
+    "/qualification/transaction": {
+      "post": {
+        "tags": [
+          "Qualification"
+        ],
+        "summary": "Save qualification result.",
+        "operationId": "qualifyTransaction",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "transactionHash": {
+                  "type": "string",
+                  "example": "D9C6EFDB526CC48FD25AA5588D7D5738291CCED6D68A392CF711E64124FCBE59"
+                },
+                "actor": {
+                  "type": "string",
+                  "example": "terra1h96s396ac9xd722cxjvv93wmdau50kk2krgu4v"
+                },
+                "referrer": {
+                  "type": "string",
+                  "example": "terra1h96s396ac9xd722cxjvv93wmdau50kk2krgu5c"
+                },
+                "campaign": {
+                  "type": "string",
+                  "example": "terra1h96s396ac9xd722cxjvv93wmdau50kk2krgu6d"
+                }
+              },
+              "required": [
+                "transactionHash",
+                "actor",
+                "campaign"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "SUCCESS",
+                    "FAILURE"
+                  ],
+                  "example": "SUCCESS"
+                },
+                "reason": {
+                  "type": "string",
+                  "description": "Its value is only exists when status is 'FAILURE'",
+                  "example": null
+                },
+                "encodedSignature": {
+                  "type": "string",
+                  "description": "Its value is only exists when status is 'SUCCESS'"
+                },
+                "actor": {
+                  "type": "string",
+                  "example": "terra1drrx23azt2c5mtz5udhu5hqdg95plun5rvypzt"
+                },
+                "referrer": {
+                  "type": "string",
+                  "description": "nullable",
+                  "example": "terra1drrx23azt2c5mtz5udhu5hqdg95plun5rvy6as"
+                },
+                "campaign": {
+                  "type": "string",
+                  "example": "terra1h96s396ac9xd722cxjvv93wmdau50kk2krgu4v"
+                },
+                "transactionHash": {
+                  "type": "string",
+                  "example": "C0C6E91E9C70ED07F4289DF71DCA9C54560DB609D21F7B4E4087507005580094"
+                },
+                "ruleId": {
+                  "type": "string",
+                  "example": "05a7d6aa-74f5-4161-8e71-f33a44c904fe"
+                }
+              },
+              "required": [
+                "status",
+                "actor",
+                "campaign",
+                "transactionHash",
+                "ruleId"
+              ]
+            }
+          },
+          "500": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "SUCCESS",
+                    "FAILURE"
+                  ],
+                  "example": "FAILURE"
+                },
+                "reason": {
+                  "type": "string",
+                  "description": "Its value is only exists when status is 'FAILURE'"
+                },
+                "encodedSignature": {
+                  "type": "string",
+                  "description": "Its value is only exists when status is 'SUCCESS'"
+                },
+                "actor": {
+                  "type": "string"
+                },
+                "referrer": {
+                  "type": "string",
+                  "description": "nullable"
+                },
+                "campaign": {
+                  "type": "string"
+                },
+                "transactionHash": {
+                  "type": "string"
+                },
+                "ruleId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/qualification/transaction/{transactionHash}": {
+      "get": {
+        "tags": [
+          "Qualification"
+        ],
+        "description": "Returns a qualification result.",
+        "operationId": "getQualificationByTransactionHash",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "transactionHash",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "campaign",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "campaign": {
+                  "type": "string",
+                  "example": "terra1h96s396ac9xd722cxjvv93wmdau50kk2krgu4v"
+                },
+                "actor": {
+                  "type": "string",
+                  "example": "terra1h96s396ac9xd722cxjvv93wmdau50kk2krgu5c"
+                },
+                "referrer": {
+                  "type": "string",
+                  "description": "nullable",
+                  "example": "terra1h96s396ac9xd722cxjvv93wmdau50kk2krgu6a"
+                },
+                "encodedSignature": {
+                  "type": "string"
+                },
+                "ruleId": {
+                  "type": "string",
+                  "example": "d6a3814e-efa0-4b07-b8e1-1c25592572eb"
+                },
+                "transactionHash": {
+                  "type": "string",
+                  "example": "2A1BE44AECAE0B417A3F5310F77E7F2903B1A8CC9CD1DB5B0E629C4E26145EC1"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Expression": {
+      "type": "object",
+      "description": "Expression",
+      "properties": {
+        "type": {
+          "type": "string",
+          "example": "And"
+        },
+        "children": {
+          "type": "array",
+          "description": "Recursive expression",
+          "items": {
+            "$ref": "#/definitions/Expression"
+          },
+          "example": "[{ type:\"BooleanLiteral\", data: \"true\"}, { type:\"BooleanLiteral\", data: \"true\"}]"
+        },
+        "data": {
+          "type": "string",
+          "example": ""
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "DivideExpression": {
+      "type": "object",
+      "description": "BigDecimalExpression",
+      "properties": {
+        "type": {
+          "type": "string",
+          "default": "Divide"
+        },
+        "children": {
+          "type": "array",
+          "description": "It needs to be BigDecimalExpression array. It can process limitless number of children.",
+          "items": {
+            "$ref": "#/definitions/Expression"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "children"
+      ]
+    },
+    "MinusExpression": {
+      "type": "object",
+      "description": "BigDecimalExpression",
+      "properties": {
+        "type": {
+          "type": "string",
+          "default": "Minus"
+        },
+        "children": {
+          "type": "array",
+          "description": "It needs to be BigDecimalExpression array. It can process limitless number of children.",
+          "items": {
+            "$ref": "#/definitions/Expression"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "children"
+      ]
+    },
+    "MultiplyExpression": {
+      "type": "object",
+      "description": "BigDecimalExpression",
+      "properties": {
+        "type": {
+          "type": "string",
+          "default": "Multiply"
+        },
+        "children": {
+          "type": "array",
+          "description": "It needs to be BigDecimalExpression array. It can process limitless number of children.",
+          "items": {
+            "$ref": "#/definitions/Expression"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "children"
+      ]
+    },
+    "PlusExpression": {
+      "type": "object",
+      "description": "BigDecimalExpression",
+      "properties": {
+        "type": {
+          "type": "string",
+          "default": "Plus"
+        },
+        "children": {
+          "type": "array",
+          "description": "It needs to be BigDecimalExpression array. It can process limitless number of children.",
+          "items": {
+            "$ref": "#/definitions/Expression"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "children"
+      ]
+    },
+    "RemainderExpression": {
+      "type": "object",
+      "description": "BigDecimalExpression",
+      "properties": {
+        "type": {
+          "type": "string",
+          "default": "Remainder"
+        },
+        "children": {
+          "type": "array",
+          "description": "It needs to be BigDecimalExpression array. It can process limitless number of children.",
+          "items": {
+            "$ref": "#/definitions/Expression"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "children"
+      ]
+    },
+    "AndExpression": {
+      "type": "object",
+      "description": "BooleanExpression",
+      "properties": {
+        "type": {
+          "type": "string",
+          "default": "And"
+        },
+        "children": {
+          "type": "array",
+          "description": "It needs to be BooleanExpression array. It can process limitless number of children.",
+          "items": {
+            "$ref": "#/definitions/Expression"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "children"
+      ]
+    },
+    "OrExpression": {
+      "type": "object",
+      "description": "BooleanExpression",
+      "properties": {
+        "type": {
+          "type": "string",
+          "default": "Or"
+        },
+        "children": {
+          "type": "array",
+          "description": "It needs to be BooleanExpression array. It can process limitless number of children.",
+          "items": {
+            "$ref": "#/definitions/Expression"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "children"
+      ]
+    },
+    "GreaterThanExpression": {
+      "type": "object",
+      "description": "BooleanExpression",
+      "properties": {
+        "type": {
+          "type": "string",
+          "default": "GreaterThan"
+        },
+        "children": {
+          "type": "array",
+          "description": "It needs to be BigDecimalExpression array. It can process only two children.",
+          "items": {
+            "$ref": "#/definitions/Expression"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "children"
+      ]
+    },
+    "GreaterThanEqualExpression": {
+      "type": "object",
+      "description": "BooleanExpression",
+      "properties": {
+        "type": {
+          "type": "string",
+          "default": "GreaterThanEqual"
+        },
+        "children": {
+          "type": "array",
+          "description": "It needs to be BigDecimalExpression array. It can process only two children.",
+          "items": {
+            "$ref": "#/definitions/Expression"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "children"
+      ]
+    },
+    "LessThanExpression": {
+      "type": "object",
+      "description": "BooleanExpression",
+      "properties": {
+        "type": {
+          "type": "string",
+          "default": "LessThan"
+        },
+        "children": {
+          "type": "array",
+          "description": "It needs to be BigDecimalExpression array. It can process only two children.",
+          "items": {
+            "$ref": "#/definitions/Expression"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "children"
+      ]
+    },
+    "LessThanEqualExpression": {
+      "type": "object",
+      "description": "BooleanExpression",
+      "properties": {
+        "type": {
+          "type": "string",
+          "default": "LessThanEqual"
+        },
+        "children": {
+          "type": "array",
+          "description": "It needs to be BigDecimalExpression array. It can process only two children.",
+          "items": {
+            "$ref": "#/definitions/Expression"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "children"
+      ]
+    },
+    "BigDecimalEqualExpression": {
+      "type": "object",
+      "description": "BooleanExpression",
+      "properties": {
+        "type": {
+          "type": "string",
+          "default": "BigDecimalEqual"
+        },
+        "children": {
+          "type": "array",
+          "description": "It needs to be BigDecimalExpression array. It can process only two children.",
+          "items": {
+            "$ref": "#/definitions/Expression"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "children"
+      ]
+    },
+    "BigDecimalNotEqualExpression": {
+      "type": "object",
+      "description": "BooleanExpression",
+      "properties": {
+        "type": {
+          "type": "string",
+          "default": "BigDecimalNotEqual"
+        },
+        "children": {
+          "type": "array",
+          "description": "It needs to be BigDecimalExpression array. It can process only two children.",
+          "items": {
+            "$ref": "#/definitions/Expression"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "children"
+      ]
+    },
+    "BooleanEqualExpression": {
+      "type": "object",
+      "description": "BooleanExpression",
+      "properties": {
+        "type": {
+          "type": "string",
+          "default": "BooleanEqual"
+        },
+        "children": {
+          "type": "array",
+          "description": "It needs to be BooleanExpression array. It can process only two children.",
+          "items": {
+            "$ref": "#/definitions/Expression"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "children"
+      ]
+    },
+    "BooleanNotEqualExpression": {
+      "type": "object",
+      "description": "BooleanExpression",
+      "properties": {
+        "type": {
+          "type": "string",
+          "default": "BooleanNotEqual"
+        },
+        "children": {
+          "type": "array",
+          "description": "It needs to be BooleanExpression array. It can process only two children.",
+          "items": {
+            "$ref": "#/definitions/Expression"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "children"
+      ]
+    },
+    "StringEqualExpression": {
+      "type": "object",
+      "description": "BooleanExpression",
+      "properties": {
+        "type": {
+          "type": "string",
+          "default": "StringEqual"
+        },
+        "children": {
+          "type": "array",
+          "description": "It needs to be StringExpression array. It can process only two children.",
+          "items": {
+            "$ref": "#/definitions/Expression"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "children"
+      ]
+    },
+    "StringNotEqualExpression": {
+      "type": "object",
+      "description": "BooleanExpression",
+      "properties": {
+        "type": {
+          "type": "string",
+          "default": "StringNotEqual"
+        },
+        "children": {
+          "type": "array",
+          "description": "It needs to be StringExpression array. It can process only two children.",
+          "items": {
+            "$ref": "#/definitions/Expression"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "children"
+      ]
+    },
+    "BigDecimalJsonPathExpression": {
+      "type": "object",
+      "description": "BigDecimalExpression",
+      "properties": {
+        "type": {
+          "type": "string",
+          "default": "BigDecimalJsonPath"
+        },
+        "data": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "data"
+      ]
+    },
+    "BigDecimalLiteralExpression": {
+      "type": "object",
+      "description": "BigDecimalExpression",
+      "properties": {
+        "type": {
+          "type": "string",
+          "default": "BigDecimalLiteral"
+        },
+        "data": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "data"
+      ]
+    },
+    "BooleanJsonPathExpression": {
+      "type": "object",
+      "description": "BooleanExpression",
+      "properties": {
+        "type": {
+          "type": "string",
+          "default": "BooleanJsonPath"
+        },
+        "data": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "data"
+      ]
+    },
+    "BooleanLiteralExpression": {
+      "type": "object",
+      "description": "BooleanExpression",
+      "properties": {
+        "type": {
+          "type": "string",
+          "default": "BooleanLiteral"
+        },
+        "data": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "data"
+      ]
+    },
+    "StringJsonPathExpression": {
+      "type": "object",
+      "description": "StringExpression",
+      "properties": {
+        "type": {
+          "type": "string",
+          "default": "StringJsonPath"
+        },
+        "data": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "data"
+      ]
+    },
+    "StringLiteralExpression": {
+      "type": "object",
+      "description": "StringExpression",
+      "properties": {
+        "type": {
+          "type": "string",
+          "default": "StringLiteral"
+        },
+        "data": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "data"
+      ]
+    },
+    "InputTransaction": {
+      "type": "object",
+      "description": "JsonPath Expression run with this format.",
+      "properties": {
+        "height": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "type": "string"
+        },
+        "transactionHash": {
+          "type": "string"
+        },
+        "qualificationInfo": {
+          "type": "object",
+          "properties": {
+            "actor": {
+              "type": "string"
+            }
+          }
+        },
+        "messages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "object",
+                "description": "Please refer the json format to https://bombay-lcd.terra.dev/cosmos/tx/v1beta1/txs/{txhash}"
+              },
+              "log": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "BaseResponseFormat": {
+      "type": "object",
+      "description": "Base response format.",
+      "properties": {
+        "isSuccess": {
+          "type": "boolean"
+        },
+        "body": {
+          "type": "object"
+        },
+        "meta": {
+          "type": "object",
+          "properties": {
+            "timestamp": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "RequestTimestamp": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "X-Request-Timestamp"
+    },
+    "RequestMessageHash": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "X-Request-Message-Hash"
+    },
+    "RequestSignature": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "X-Request-Signature"
+    },
+    "WalletAuth": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "Authorization"
+    }
+  }
+}
